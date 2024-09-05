@@ -1,0 +1,24 @@
+inputs:  
+	FastLength( 13 ) [DisplayName = "FastLength", ToolTip = 
+	 "Enter number of bars to use in calculation of shorter length moving average."], 
+	SlowLength( 17 ) [DisplayName = "SlowLength", ToolTip = 
+	 "Enter number of bars to use in calculation of longer length moving average."], 
+	MACDLength( 7 ) [DisplayName = "MACDLength", ToolTip = 
+	 "Moving Average Convergence Divergence Length.  Enter the number of bars to use in smoothing the MACD value."];
+	
+variables:  
+	MyMACD( 0 ), 
+	MACDAvg( 0 ), 
+	MACDDiff( 0 );
+
+//Calculate MACD
+MACD = XAverage( Price, FastLength ) - XAverage( Price, SlowLength ) ;
+
+MyMACD = MACD( Close, FastLength, SlowLength );
+MACDAvg = XAverage( MyMACD, MACDLength );
+MACDDiff = MyMACD - MACDAvg;
+
+//CurrentBar > 2 check used to avoid spurious cross confirmation at CurrentBar = 2 
+//(at CurrentBar = 1, MyMACD and MACDAvg will be the same)
+if CurrentBar > 2 and MACDDiff crosses over 0 then 
+	Buy ( !( "MacdLE" ) ) next bar at market;
